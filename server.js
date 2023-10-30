@@ -1,25 +1,27 @@
-const express = require('express');
+const {title, text} = req.body;
+  if (title && text) {
+      const newNote = {
+          title,
+          text,
+          id: uuid.v4(),
+      };
+      JSONnotes.push(newNote);
+      fs.writeFileSync('./db/db.json', JSON.stringify(JSONnotes, null, 4));
+      res.json(JSONnotes);
+  }
 
-const path = require('path');
-const api = require('./routes/index')
+app.delete('/api/notes/:id', (req, res) => {
+  const noteID = req.params.id;
+  const deleteThisNote = JSONnotes.find((note) => note.id === noteID);
+  JSONnotes.splice(deleteThisNote, 1);
+  fs.writeFileSync('./db/db.json', JSON.stringify(JSONnotes, null, 4));
+  res.json(JSONnotes);
+});
 
-const PORT = process.env.PORT || 3001;
-
-const app = express();
-
-app.use(express.json());
-app.use(express.static('public'))
-
-app.use('/api', api)
-
-app.get('/notes', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/notes.html'))
-})
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'))
-})
+app.get('*', (req, res) =>
+res.sendFile(path.join(__dirname, '/public/index.html'))
+);
 
 app.listen(PORT, () => {
-    console.log(`Listening at http://localhost:${PORT}}`)
-})
+  console.log(`API server now on port ${PORT}!`);
+});
