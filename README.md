@@ -12,7 +12,7 @@
 ## Usage
 
   open heroku app
-  (https://note-taker-test-552e9ad832a8.herokuapp.com/notes)
+  (https://note-taker-test-552e9ad832a8.herokuapp.com/)
 
 ## Contributions
 
