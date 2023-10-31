@@ -1,31 +1,46 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 
-const apiRouter = require("./pub/assets/routes/apiRoutes.js");
-const htmlRouter = require("./pub/assets/routes/htmlRoutes");
-const app = express();
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const PORT = process.env.PORT || 3001;
 
+const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-app.use('/api', apiRouter);
-app.use('/html', htmlRouter);
-
-app.get('/', (_req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'routes', 'index.html'));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-app.get('/html', (_req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'routes', 'index.html'));
+app.get('/notes', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/notes.html'));
 });
 
-app.get('/notes', (_req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'routes', 'notes.html'));
+app.get('/api/notes', (req, res) => { 
+  const notesData = fs.readFileSync('./db/db.json',"utf-8")
+  res.json(JSON.parse(notesData))
+});
+
+app.post('/api/notes', (req, res) => {
+  const notesData = JSON.parse(fs.readFileSync('./db/db.json',"utf-8"))
+  console.log("This is my req.body",req.body)
+  notesData.push({
+    ...req.body,
+    id:uuidv4()
+  })
+  fs.writeFileSync('./db/db.json',JSON.stringify(notesData))
+  res.json({message:'Notes Saved'});
+});
+
+app.delete('/api/notes/:id', (req, res) => {
+  const notesData = JSON.parse(fs.readFileSync('./db/db.json',"utf-8"))
+  const filteredNotes = notesData.filter(note => note.id !== req.params.id)
+  fs.writeFileSync('./db/db.json',JSON.stringify(filteredNotes))
+  res.json({message:'Note Deleted'});
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is listening on http://127.0.0.1:${PORT}`);
+  console.log(`Example app listening at http://localhost:${PORT}`);
 });
