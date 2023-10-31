@@ -1,27 +1,31 @@
-const {title, text} = req.body;
-  if (title && text) {
-      const newNote = {
-          title,
-          text,
-          id: uuid.v4(),
-      };
-      JSONnotes.push(newNote);
-      fs.writeFileSync('./db/db.json', JSON.stringify(JSONnotes, null, 4));
-      res.json(JSONnotes);
-  }
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
 
-app.delete('/api/notes/:id', (req, res) => {
-  const noteID = req.params.id;
-  const deleteThisNote = JSONnotes.find((note) => note.id === noteID);
-  JSONnotes.splice(deleteThisNote, 1);
-  fs.writeFileSync('./db/db.json', JSON.stringify(JSONnotes, null, 4));
-  res.json(JSONnotes);
+const apiRouter = require('./pub/routes/apiRoutes.js');
+const htmlRouter = require('./pub/routes/htmlRoutes');
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/api', apiRouter);
+app.use('/html', htmlRouter);
+
+app.get('/', (_req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'routes', 'index.html'));
 });
 
-app.get('*', (req, res) =>
-res.sendFile(path.join(__dirname, '/public/index.html'))
-);
+app.get('/html', (_req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'routes', 'index.html'));
+});
+
+app.get('/notes', (_req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'routes', 'notes.html'));
+});
 
 app.listen(PORT, () => {
-  console.log(`API server now on port ${PORT}!`);
+    console.log(`Server is listening on http://127.0.0.1:${PORT}`);
 });
