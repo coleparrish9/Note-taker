@@ -10,8 +10,8 @@
     "license": "ISC",
     "dependencies": {
         "express": "^4.16.4",
+        "express.js": "^1.0.0",
         "node": "^21.1.0",
-        "node.js": "^0.0.1-security",
         "uuid": "^9.0.1"
     },
     "devDependencies": {
